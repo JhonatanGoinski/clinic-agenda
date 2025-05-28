@@ -2,6 +2,9 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import SignOutButton from "./components/sign-out-button";
 import { redirect } from "next/navigation";
+import { db } from "@/db";
+import { eq } from "drizzle-orm";
+import { usersToClinicsTable } from "@/db/schema";
 
 const DashboardPage = async () => {
   const session = await auth.api.getSession({
@@ -10,6 +13,15 @@ const DashboardPage = async () => {
 
   if (!session?.user) {
     redirect("/authentication");
+  }
+
+  // pegar as clinicas do usuario
+  const clinics = await db.query.usersToClinicsTable.findMany({
+    where: eq(usersToClinicsTable.userId, session.user.id),
+  });
+  // verificar se o usuario tem clinicas
+  if (clinics.length === 0) {
+    redirect("/clinic-form");
   }
 
   return (
