@@ -16,6 +16,21 @@ import { getAvailability } from "../_helpers/availability";
 import { formatCurrencyInCents } from "@/helpers/currency";
 import UpsertDoctorForm from "./upsert-doctor-form";
 import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { TrashIcon } from "lucide-react";
+import { toast } from "sonner";
+import { deleteDoctor } from "@/actions/delete-doctor";
+import { useAction } from "next-safe-action/hooks";
 
 interface DoctorCardProps {
   doctor: typeof doctorsTable.$inferSelect;
@@ -30,6 +45,20 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
     .join("");
 
   const availability = getAvailability(doctor);
+
+  const deleteDoctorAction = useAction(deleteDoctor, {
+    onSuccess: () => {
+      toast.success("Médico deletado com sucesso");
+    },
+    onError: () => {
+      toast.error("Erro ao deletar médico");
+    },
+  });
+
+  const handleDeleteDoctor = () => {
+    if (!doctor) return;
+    deleteDoctorAction.execute({ id: doctor?.id });
+  };
 
   return (
     <Card>
@@ -61,7 +90,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
         </Badge>
       </CardContent>
       <Separator />
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-2">
         <Dialog
           open={isUpsertDoctorDialogOpen}
           onOpenChange={setIsUpsertDoctorDialogOpen}
@@ -78,6 +107,33 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
             onSuccess={() => setIsUpsertDoctorDialogOpen(false)}
           />
         </Dialog>
+        {doctor && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" className="w-full">
+                <TrashIcon />
+                Deletar Médico
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Tem certeza que deseja deletar este médico?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação não pode ser revertida. Isso irá deletar o médico e
+                  todas as consultas agendadas para ele.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteDoctor}>
+                  Deletar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </CardFooter>
     </Card>
   );
