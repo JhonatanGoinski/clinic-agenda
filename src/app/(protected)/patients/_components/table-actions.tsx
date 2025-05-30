@@ -15,7 +15,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -55,9 +54,7 @@ const PatientsTableActions = ({ patient }: PatientsTableActionsProps) => {
       <Dialog open={upsertDialogIsOpen} onOpenChange={setUpsertDialogIsOpen}>
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <Button variant="ghost" size="icon">
-              <MoreVerticalIcon className="h-4 w-4" />
-            </Button>
+            <MoreVerticalIcon className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuLabel>{patient.name}</DropdownMenuLabel>
