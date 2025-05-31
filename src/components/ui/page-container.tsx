@@ -1,37 +1,92 @@
-export const PageContainer = ({ children }: { children: React.ReactNode }) => {
-  return <div className="w-full space-y-6 p-6">{children}</div>;
-};
+import type React from "react";
+import { cn } from "@/lib/utils";
 
-export const PageHeader = ({ children }: { children: React.ReactNode }) => {
+interface PageContainerProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function PageContainer({ children, className }: PageContainerProps) {
   return (
-    <div className="flex w-full items-center justify-between">{children}</div>
+    <div
+      className={cn(
+        "container mx-auto px-2 py-4 sm:mb-3 sm:px-4 sm:py-6 lg:px-6 lg:py-8",
+        className,
+      )}
+    >
+      {children}
+    </div>
   );
-};
+}
 
-export const PageHeaderContets = ({
-  children,
-}: {
+interface PageHeaderProps {
   children: React.ReactNode;
-}) => {
-  return <div className="w-full space-y-1">{children}</div>;
-};
+  className?: string;
+}
 
-export const PageTitle = ({ children }: { children: React.ReactNode }) => {
-  return <div className="text-2xl font-bold">{children}</div>;
-};
+export function PageHeader({ children, className }: PageHeaderProps) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-4 sm:mb-3 sm:flex-row sm:items-center sm:justify-between",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
 
-export const PageDescription = ({
-  children,
-}: {
+interface PageHeaderContentsProps {
   children: React.ReactNode;
-}) => {
-  return <div className="text-muted-foreground text-sm">{children}</div>;
-};
+  className?: string;
+}
 
-export const PageActions = ({ children }: { children: React.ReactNode }) => {
-  return <div className="flex items-center gap-2">{children}</div>;
-};
+export function PageHeaderContets({
+  children,
+  className,
+}: PageHeaderContentsProps) {
+  return <div className={cn("space-y-1", className)}>{children}</div>;
+}
 
-export const PageContent = ({ children }: { children: React.ReactNode }) => {
-  return <div className="space-y-6">{children}</div>;
-};
+interface PageTitleProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function PageTitle({ children, className }: PageTitleProps) {
+  return (
+    <h1 className={cn("text-2xl font-bold tracking-tight", className)}>
+      {children}
+    </h1>
+  );
+}
+
+interface PageDescriptionProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function PageDescription({ children, className }: PageDescriptionProps) {
+  return <p className={cn("text-muted-foreground", className)}>{children}</p>;
+}
+
+interface PageActionsProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function PageActions({ children, className }: PageActionsProps) {
+  return (
+    <div className={cn("flex items-center gap-2", className)}>{children}</div>
+  );
+}
+
+interface PageContentProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function PageContent({ children, className }: PageContentProps) {
+  return <div className={cn("space-y-6", className)}>{children}</div>;
+}

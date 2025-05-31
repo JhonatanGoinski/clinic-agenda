@@ -44,7 +44,7 @@ export function DatePicker({
     to,
   };
   return (
-    <div className={cn("grid gap-2", className)}>
+    <div className={cn("mb-2 grid gap-2", className)}>
       <Popover>
         <PopoverTrigger asChild>
           <Button

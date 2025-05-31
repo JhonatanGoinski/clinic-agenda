@@ -1,34 +1,36 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import "dayjs/locale/pt-br";
+
+import dayjs from "dayjs";
+
+dayjs.locale("pt-br");
+import { DollarSign } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import dayjs from "dayjs";
 import { formatCurrencyInCents } from "@/helpers/currency";
 
-export const description = "An area chart with gradient fill";
-dayjs.locale("pt-br");
-interface RevenueChartProps {
-  daillyAppointmentsData: {
-    date: string;
-    appointments: number;
-    revenue: number;
-  }[];
+interface DailyAppointment {
+  date: string;
+  appointments: number;
+  revenue: number | null;
 }
 
-export function RevenueChart({ daillyAppointmentsData }: RevenueChartProps) {
+interface AppointmentsChartProps {
+  dailyAppointmentsData: DailyAppointment[];
+}
+
+const AppointmentsChart = ({
+  dailyAppointmentsData,
+}: AppointmentsChartProps) => {
+  // Gerar 21 dias: 10 antes + hoje + 10 depois
   const chartDays = Array.from({ length: 21 }).map((_, i) =>
     dayjs()
       .subtract(10 - i, "days")
@@ -36,14 +38,15 @@ export function RevenueChart({ daillyAppointmentsData }: RevenueChartProps) {
   );
 
   const chartData = chartDays.map((date) => {
-    const dayForData = daillyAppointmentsData.find((d) => d.date === date);
+    const dataForDay = dailyAppointmentsData.find((item) => item.date === date);
     return {
       date: dayjs(date).format("DD/MM"),
       fullDate: date,
-      appointments: dayForData?.appointments || 0,
-      revenue: Number(dayForData?.revenue || 0),
+      appointments: dataForDay?.appointments || 0,
+      revenue: Number(dataForDay?.revenue || 0),
     };
   });
+
   const chartConfig = {
     appointments: {
       label: "Agendamentos",
@@ -57,25 +60,22 @@ export function RevenueChart({ daillyAppointmentsData }: RevenueChartProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Visão geral de agendamentos e faturamento</CardTitle>
-        <CardDescription>
-          Mostra o total de agendamentos e faturamento por dia
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center gap-2">
+        <DollarSign />
+        <CardTitle>Agendamentos e Faturamento</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="min-h-[200px]">
           <AreaChart
-            accessibilityLayer
             data={chartData}
             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           >
-            <CartesianGrid vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="date"
               tickLine={false}
-              axisLine={false}
               tickMargin={10}
+              axisLine={false}
             />
             <YAxis
               yAxisId="left"
@@ -152,4 +152,6 @@ export function RevenueChart({ daillyAppointmentsData }: RevenueChartProps) {
       </CardContent>
     </Card>
   );
-}
+};
+
+export default AppointmentsChart;
