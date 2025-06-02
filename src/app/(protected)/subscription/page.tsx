@@ -10,9 +10,8 @@ import {
   PageTitle,
 } from "@/components/ui/page-container";
 import { auth } from "@/lib/auth";
-import { SubscriptionPlan } from "./_components/subscription-plan";
 
-// import { SubscriptionPlan } from "./_components/subscription-plan";
+import { SubscriptionPlan } from "./_components/subscription-plan";
 
 const SubscriptionPage = async () => {
   const session = await auth.api.getSession({
@@ -35,7 +34,7 @@ const SubscriptionPage = async () => {
       <PageContent>
         <SubscriptionPlan
           className="w-[350px]"
-          // active={session.user.plan === "essential"}
+          active={session.user.plan === "essential"}
           userEmail={session.user.email}
         />
       </PageContent>
