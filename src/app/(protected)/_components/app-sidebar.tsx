@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Banknote,
   CalendarDays,
   LayoutDashboard,
   LogOut,
@@ -94,6 +95,24 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Outros</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === "/subscription"}
+                >
+                  <Link href="/subscription">
+                    <Banknote />
+                    <span>Assinatura</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
@@ -102,19 +121,21 @@ export function AppSidebar() {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="lg">
                   <Avatar>
-                    <AvatarFallback>F</AvatarFallback>
+                    <AvatarFallback>
+                      {session.data?.user?.clinic?.name[0]}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text:sm">
+                    <p className="text-sm">
                       {session.data?.user?.clinic?.name}
                     </p>
-                    <p className="text:sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {session.data?.user.email}
                     </p>
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="m-2">
+              <DropdownMenuContent>
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut />
                   Sair
