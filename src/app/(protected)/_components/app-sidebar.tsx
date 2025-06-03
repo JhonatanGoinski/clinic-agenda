@@ -32,7 +32,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import logo from "../../../../../public/logo.svg";
+import logoClinic from "../public/logo.svg";
 
 // Menu items.
 const items = [
@@ -75,7 +75,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="flex flex-row items-center gap-2 border-b p-4">
-        <Image src={logo} alt="Clinic Agenda" width={30} height={30} />
+        <Image src={logoClinic} alt="Clinic Agenda" width={30} height={30} />
         <h1 className="text-xl font-bold">Clinic Agenda</h1>
       </SidebarHeader>
       <SidebarContent>
