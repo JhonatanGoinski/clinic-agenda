@@ -8,9 +8,11 @@ import { headers } from "next/headers";
 import { actionClient } from "@/lib/next-safe-action";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import { revalidatePath } from "next/cache";
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export const upsertDoctor = actionClient
   .schema(upsertDoctorSchema)
@@ -18,17 +20,9 @@ export const upsertDoctor = actionClient
     const availableFromTime = parsedInput.availableFromTime;
     const availableToTime = parsedInput.availableToTime;
 
-    const availableFromTimeUTC = dayjs()
-      .set("hour", parseInt(availableFromTime.split(":")[0]))
-      .set("minute", parseInt(availableFromTime.split(":")[1]))
-      .set("second", parseInt(availableFromTime.split(":")[2]))
-      .utc();
-
-    const availableToTimeUTC = dayjs()
-      .set("hour", parseInt(availableToTime.split(":")[0]))
-      .set("minute", parseInt(availableToTime.split(":")[1]))
-      .set("second", parseInt(availableToTime.split(":")[2]))
-      .utc();
+    // Aqui não precisamos converter para UTC pois são apenas horários
+    const availableFromTimeFormatted = availableFromTime;
+    const availableToTimeFormatted = availableToTime;
 
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -47,15 +41,15 @@ export const upsertDoctor = actionClient
         ...parsedInput,
         id: parsedInput.id,
         clinicId: session?.user.clinic?.id,
-        availableFromTime: availableFromTimeUTC.format("HH:mm:ss"),
-        availableToTime: availableToTimeUTC.format("HH:mm:ss"),
+        availableFromTime: availableFromTimeFormatted,
+        availableToTime: availableToTimeFormatted,
       })
       .onConflictDoUpdate({
         target: [doctorsTable.id],
         set: {
           ...parsedInput,
-          availableFromTime: availableFromTimeUTC.format("HH:mm:ss"),
-          availableToTime: availableToTimeUTC.format("HH:mm:ss"),
+          availableFromTime: availableFromTimeFormatted,
+          availableToTime: availableToTimeFormatted,
         },
       });
     revalidatePath("/doctors");

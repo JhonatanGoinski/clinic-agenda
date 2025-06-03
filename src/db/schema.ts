@@ -179,7 +179,7 @@ export const patientTableRelations = relations(
 
 export const appointmentsTable = pgTable("appointments", {
   id: uuid("id").defaultRandom().primaryKey(),
-  date: timestamp("date").notNull(),
+  date: timestamp("date", { withTimezone: true }).notNull(),
   appointmentPriceInCents: integer("appointment_price_in_cents").notNull(),
   clinicId: uuid("clinic_id")
     .notNull()
@@ -190,8 +190,10 @@ export const appointmentsTable = pgTable("appointments", {
   doctorId: uuid("doctor_id")
     .notNull()
     .references(() => doctorsTable.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
     .defaultNow()
     .$onUpdate(() => new Date()),
 });

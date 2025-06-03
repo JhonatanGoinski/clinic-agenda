@@ -1,8 +1,13 @@
 import dayjs from "dayjs";
-import { and, count, desc, eq, gte, lte, sql, sum } from "drizzle-orm";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import { and, count, desc, eq, gte, lte, sql, sum, asc } from "drizzle-orm";
 
 import { db } from "@/db";
 import { appointmentsTable, doctorsTable, patientsTable } from "@/db/schema";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface Params {
   from: string;
@@ -17,8 +22,15 @@ interface Params {
 }
 
 export const getDashboard = async ({ from, to, session }: Params) => {
-  const chartStartDate = dayjs().subtract(10, "days").startOf("day").toDate();
-  const chartEndDate = dayjs().add(10, "days").endOf("day").toDate();
+  const chartStartDate = dayjs()
+    .subtract(10, "days")
+    .utc()
+    .startOf("day")
+    .toDate();
+  const chartEndDate = dayjs().add(10, "days").utc().endOf("day").toDate();
+  const fromDate = dayjs(from).utc().startOf("day").toDate();
+  const toDate = dayjs(to).utc().endOf("day").toDate();
+
   const [
     [totalRevenue],
     [totalAppointments],
@@ -37,8 +49,8 @@ export const getDashboard = async ({ from, to, session }: Params) => {
       .where(
         and(
           eq(appointmentsTable.clinicId, session.user.clinic.id),
-          gte(appointmentsTable.date, new Date(from)),
-          lte(appointmentsTable.date, new Date(to)),
+          gte(appointmentsTable.date, fromDate),
+          lte(appointmentsTable.date, toDate),
         ),
       ),
     db
@@ -49,8 +61,8 @@ export const getDashboard = async ({ from, to, session }: Params) => {
       .where(
         and(
           eq(appointmentsTable.clinicId, session.user.clinic.id),
-          gte(appointmentsTable.date, new Date(from)),
-          lte(appointmentsTable.date, new Date(to)),
+          gte(appointmentsTable.date, fromDate),
+          lte(appointmentsTable.date, toDate),
         ),
       ),
     db
@@ -72,14 +84,15 @@ export const getDashboard = async ({ from, to, session }: Params) => {
         avatarImageUrl: doctorsTable.avatarImageUrl,
         specialty: doctorsTable.specialty,
         appointments: count(appointmentsTable.id),
+        revenue: sum(appointmentsTable.appointmentPriceInCents),
       })
       .from(doctorsTable)
       .leftJoin(
         appointmentsTable,
         and(
           eq(appointmentsTable.doctorId, doctorsTable.id),
-          gte(appointmentsTable.date, new Date(from)),
-          lte(appointmentsTable.date, new Date(to)),
+          gte(appointmentsTable.date, fromDate),
+          lte(appointmentsTable.date, toDate),
         ),
       )
       .where(eq(doctorsTable.clinicId, session.user.clinic.id))
@@ -96,8 +109,8 @@ export const getDashboard = async ({ from, to, session }: Params) => {
       .where(
         and(
           eq(appointmentsTable.clinicId, session.user.clinic.id),
-          gte(appointmentsTable.date, new Date(from)),
-          lte(appointmentsTable.date, new Date(to)),
+          gte(appointmentsTable.date, fromDate),
+          lte(appointmentsTable.date, toDate),
         ),
       )
       .groupBy(doctorsTable.specialty)
@@ -105,13 +118,14 @@ export const getDashboard = async ({ from, to, session }: Params) => {
     db.query.appointmentsTable.findMany({
       where: and(
         eq(appointmentsTable.clinicId, session.user.clinic.id),
-        gte(appointmentsTable.date, new Date()),
-        lte(appointmentsTable.date, new Date()),
+        gte(appointmentsTable.date, dayjs(from).startOf("day").toDate()),
+        lte(appointmentsTable.date, dayjs(from).endOf("day").toDate()),
       ),
       with: {
         patient: true,
         doctor: true,
       },
+      orderBy: (appointments) => [asc(appointments.date)],
     }),
     db
       .select({
@@ -133,12 +147,16 @@ export const getDashboard = async ({ from, to, session }: Params) => {
       .groupBy(sql`DATE(${appointmentsTable.date})`)
       .orderBy(sql`DATE(${appointmentsTable.date})`),
   ]);
+
   return {
     totalRevenue,
     totalAppointments,
     totalPatients,
     totalDoctors,
-    topDoctors,
+    topDoctors: topDoctors.map((doctor) => ({
+      ...doctor,
+      revenue: doctor.revenue ? Number(doctor.revenue) : null,
+    })),
     topSpecialties,
     todayAppointments,
     dailyAppointmentsData,

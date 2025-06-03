@@ -49,11 +49,6 @@ export const getAvailableTimes = actionClient
     const appointments = await db.query.appointmentsTable.findMany({
       where: eq(appointmentsTable.doctorId, parsedInput.doctorId),
     });
-    const appointmentsOnSelectedDate = appointments
-      .filter((appointment) => {
-        return dayjs(appointment.date).isSame(parsedInput.date, "day");
-      })
-      .map((appointment) => dayjs(appointment.date).format("HH:mm:ss"));
     const timeSlots = generateTimeSlots();
 
     const doctorAvailableFrom = dayjs()
@@ -61,25 +56,48 @@ export const getAvailableTimes = actionClient
       .set("hour", Number(doctor.availableFromTime.split(":")[0]))
       .set("minute", Number(doctor.availableFromTime.split(":")[1]))
       .set("second", 0)
-      .local();
+      .startOf("second");
+
     const doctorAvailableTo = dayjs()
       .utc()
       .set("hour", Number(doctor.availableToTime.split(":")[0]))
       .set("minute", Number(doctor.availableToTime.split(":")[1]))
       .set("second", 0)
-      .local();
+      .startOf("second");
+
     const doctorTimeSlots = timeSlots.filter((time) => {
       const date = dayjs()
         .utc()
         .set("hour", Number(time.split(":")[0]))
         .set("minute", Number(time.split(":")[1]))
-        .set("second", 0);
+        .set("second", 0)
+        .startOf("second");
 
-      return (
+      const isWithinDoctorHours =
         date.format("HH:mm:ss") >= doctorAvailableFrom.format("HH:mm:ss") &&
-        date.format("HH:mm:ss") <= doctorAvailableTo.format("HH:mm:ss")
-      );
+        date.format("HH:mm:ss") <= doctorAvailableTo.format("HH:mm:ss");
+
+      const isToday = dayjs(parsedInput.date).isSame(dayjs(), "day");
+      const isPastTime =
+        isToday &&
+        dayjs().isAfter(
+          dayjs(parsedInput.date)
+            .set("hour", Number(time.split(":")[0]))
+            .set("minute", Number(time.split(":")[1])),
+        );
+
+      return isWithinDoctorHours && !isPastTime;
     });
+
+    const appointmentsOnSelectedDate = appointments
+      .filter((appointment) => {
+        return dayjs(appointment.date)
+          .utc()
+          .startOf("day")
+          .isSame(dayjs(parsedInput.date).utc().startOf("day"));
+      })
+      .map((appointment) => dayjs(appointment.date).utc().format("HH:mm:ss"));
+
     return doctorTimeSlots.map((time) => {
       return {
         value: time,

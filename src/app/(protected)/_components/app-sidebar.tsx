@@ -72,20 +72,42 @@ export function AppSidebar() {
   };
   return (
     <Sidebar>
-      <SidebarHeader className="flex flex-row items-center gap-2 border-b p-4">
-        <Image src="/Logo.svg" alt="Clinic Agenda" width={30} height={30} />
-        <h1 className="text-xl font-bold">Clinic Agenda</h1>
+      <SidebarHeader className="from-primary/5 to-background flex h-16 flex-row items-center gap-2 border-b bg-gradient-to-r p-4">
+        <Image
+          src="/Logo.svg"
+          alt="Clinic Agenda"
+          width={30}
+          height={30}
+          className="transition-transform hover:scale-105"
+        />
+        <h1 className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-xl font-bold tracking-tight text-transparent">
+          Clinic Agenda
+        </h1>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="from-background via-background to-primary/5 bg-gradient-to-b">
         <SidebarGroup>
-          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-primary/70 text-xs font-medium tracking-wider uppercase">
+            Menu Principal
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.url}
+                    className={`transition-all duration-200 hover:translate-x-1 ${
+                      pathname === item.url
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-primary/5 hover:text-primary"
+                    }`}
+                  >
                     <Link href={item.url}>
-                      <item.icon />
+                      <item.icon
+                        className={`transition-colors ${
+                          pathname === item.url ? "text-primary" : ""
+                        }`}
+                      />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -95,16 +117,27 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Outros</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-primary/70 text-xs font-medium tracking-wider uppercase">
+            Outros
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === "/subscription"}
+                  className={`transition-all duration-200 hover:translate-x-1 ${
+                    pathname === "/subscription"
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-primary/5 hover:text-primary"
+                  }`}
                 >
                   <Link href="/subscription">
-                    <Banknote />
+                    <Banknote
+                      className={`transition-colors ${
+                        pathname === "/subscription" ? "text-primary" : ""
+                      }`}
+                    />
                     <span>Assinatura</span>
                   </Link>
                 </SidebarMenuButton>
@@ -113,30 +146,36 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="from-primary/5 to-background border-t bg-gradient-to-t">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton size="lg">
-                  <Avatar>
-                    <AvatarFallback>
+                <SidebarMenuButton
+                  size="lg"
+                  className="hover:bg-primary/5 group transition-colors"
+                >
+                  <Avatar className="border-primary/20 bg-primary/5 group-hover:border-primary/30 border transition-colors">
+                    <AvatarFallback className="bg-primary/10 text-primary">
                       {session.data?.user?.clinic?.name[0]}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm">
+                    <p className="group-hover:text-primary text-sm font-medium transition-colors">
                       {session.data?.user?.clinic?.name}
                     </p>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-muted-foreground text-xs">
                       {session.data?.user.email}
                     </p>
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut />
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="text-destructive focus:text-destructive gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
                   Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>

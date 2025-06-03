@@ -23,6 +23,7 @@ import { DatePicker } from "./_components/date-picker";
 import StatsCards from "./_components/stats-cards";
 import TopDoctors from "./_components/top-doctors";
 import TopSpecialties from "./_components/top-specialties";
+import { ExportButton } from "./_components/export-button";
 
 interface DashboardPageProps {
   searchParams: Promise<{
@@ -68,6 +69,19 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
     },
   });
 
+  const dashboardData = {
+    totalRevenue: totalRevenue.total ? Number(totalRevenue.total) : null,
+    totalAppointments: totalAppointments.total,
+    totalPatients: totalPatients.total,
+    totalDoctors: totalDoctors.total,
+    topDoctors: topDoctors.map((doctor) => ({
+      ...doctor,
+      revenue: doctor.revenue ? Number(doctor.revenue) : null,
+    })),
+    topSpecialties,
+    todayAppointments,
+  };
+
   return (
     <PageContainer>
       <PageHeader>
@@ -78,7 +92,10 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
           </PageDescription>
         </PageHeaderContets>
         <PageActions>
-          <DatePicker />
+          <div className="flex items-center gap-2">
+            <DatePicker />
+            <ExportButton data={dashboardData} period={{ from, to }} />
+          </div>
         </PageActions>
       </PageHeader>
       <PageContent>
@@ -92,18 +109,26 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
         {/* Primeira seção: Gráfico + Top Doctors */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2.25fr_1fr]">
           <AppointmentsChart dailyAppointmentsData={dailyAppointmentsData} />
-          <TopDoctors doctors={topDoctors} />
+          <TopDoctors
+            doctors={topDoctors.map((doctor) => ({
+              ...doctor,
+              revenue: doctor.revenue ? Number(doctor.revenue) : null,
+            }))}
+          />
         </div>
 
         {/* Segunda seção: Agendamentos de hoje + Top Specialties */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2.25fr_1fr]">
           <Card>
             <CardHeader>
-              <div className="flex items-center gap-3">
-                <Calendar className="text-muted-foreground" />
-                <CardTitle className="text-base">
-                  Agendamentos de hoje
-                </CardTitle>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Calendar className="text-muted-foreground" />
+                  <CardTitle className="text-base">
+                    Agendamentos do dia
+                  </CardTitle>
+                </div>
+                <DatePicker className="mb-0" />
               </div>
             </CardHeader>
             <CardContent>
