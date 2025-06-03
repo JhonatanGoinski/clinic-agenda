@@ -32,7 +32,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import logo from "@/public/logo.svg";
+import logo from "../../../../../public/logo.svg";
 
 // Menu items.
 const items = [
